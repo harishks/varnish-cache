@@ -49,6 +49,16 @@ vcc_act_call(struct vcc *tl, struct token *t, struct symbol *sym)
 	(void)t;
 	ExpectErr(tl, ID);
 	t0 = tl->t;
+	sym = VCC_SymbolGet(tl, SYM_MAIN, SYM_NONE, SYMTAB_NOERR, XREF_NONE);
+	tl->t = t0;
+	if (sym != NULL && sym->kind == SYM_FUNC) {
+		// XXX NULL check? use VRT_call?
+		vcc_Expr(tl, SUB);
+		Fb(tl, 1, "->func(ctx, VSUB_STATIC, NULL);\n");
+		SkipToken(tl, ';');
+		return;
+	}
+
 	sym = VCC_SymbolGet(tl, SYM_MAIN, SYM_SUB, SYMTAB_CREATE, XREF_REF);
 	if (sym != NULL) {
 		vcc_AddCall(tl, t0, sym);
